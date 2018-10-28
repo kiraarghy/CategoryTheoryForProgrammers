@@ -114,7 +114,7 @@ value: 1
 memoized: 0.412ms
 ```
 
-<b> But we end up in a situation where no matter what the randomness is eliminated. The memoized version will always return the first evaluated value. This is due to Random.int in Reason being an impure function.
+<b> But we end up in a situation where no matter what the randomness is eliminated. The memoized version will always return the first evaluated value. This is due to Random.int in Reason being an impure function. </b>
 
 3. Most random number generators can be initialized with a seed. Implement a function that takes a seed, calls the random number generator with that seed, and returns the result. Memoize that function. Does it work?
 
@@ -157,7 +157,7 @@ memoized: 4.173ms
 memoized: 0.064ms
 ```
 
-<b> This seems to work as expected, in this case supplying func g with a seed means it is pure, we can guarantee that provided we pass in the same int we will always get the same int out.
+<b> This seems to work as expected, in this case supplying func g with a seed means it is pure, we can guarantee that provided we pass in the same int we will always get the same int out. </b>
 
 
 Which of these C++ functions are pure? Try to memoize them and observe what happens when you call them multiple times: memoized and not.
@@ -184,7 +184,7 @@ return y;
 
 This is kinda annoying as I'm not doing this is C++ 🤔.
 
-<b> A The factorial example referred to is this:
+<b> A The factorial example referred to is this: </b>
 
 ```C
 int fact(int n) {
@@ -234,7 +234,7 @@ memoized: 0.369ms
 
 The above implemented in Reason results in some performance weirdness in the memoized version. I assume this is due to V8 being super useful™ and finding performance enhancements for the non-memoized version.
 
-<b> B 
+<b> B </b>
 
 Not sure about 
 
@@ -244,7 +244,7 @@ std::getchar()
 
 I *think* it is pure having read a number of C articles but have no clue.
 
-<b> C
+<b> C </b>
 
 ```C
 bool f() {
@@ -266,7 +266,7 @@ The above in an impure function (side-effects of printing "Hello!").
 
 However as the logging doesn't effect the execution of the function, we can guarantee it will return true. Memoizing this would be simple enough but results in a less efficient execution of the code.
 
-<b> D
+<b> D </b>
   
 ```C 
 int f(int x) {
