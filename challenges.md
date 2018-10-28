@@ -308,4 +308,10 @@ memoized f: 0.587ms
 memoized f: 0.422ms
 ```
 
-Again weirdness from V8, I feel at this point I might have to look at my base memoization function 😭.
+Again weirdness from V8, I feel at this point I might have to look at my base memoization function 😭/ whether node is timing shit properly.
+
+5. How many different functions are there from Bool to Bool? Can you implement them all?
+
+I imagine a lot, you could implement infinite implementations but it shouldn't matter as they will always return a bool? 
+
+6. 
