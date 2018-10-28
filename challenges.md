@@ -101,7 +101,6 @@ let memoizer = (~f: int => int, n: int) =>
       Hashtbl.add(blah, n, x);
       x;
     };
-Random.init(6)
 
 memoizer(~f = Random.int, 3);
 ```
@@ -114,3 +113,199 @@ notmemoizedyet: 3.037ms
 value: 1
 memoized: 0.412ms
 ```
+
+<b> But we end up in a situation where no matter what the randomness is eliminated. The memoized version will always return the first evaluated value. This is due to Random.int in Reason being an impure function.
+
+3. Most random number generators can be initialized with a seed. Implement a function that takes a seed, calls the random number generator with that seed, and returns the result. Memoize that function. Does it work?
+
+```reason
+let blah = Hashtbl.create(1);
+
+let memoizer = (~f: int => int, n: int) =>
+  Hashtbl.mem(blah, n) ?
+    Hashtbl.find(blah, n) :
+    {
+      let x = f(n);
+      Hashtbl.add(blah, n, x);
+      x;
+    };
+
+    let g = (seed: int) => {
+        Random.init(seed);
+        Random.int(10);
+    }
+
+
+memoizer(~f = g, 10);
+memoizer(~f = g, 10);
+memoizer(~f = g, 12);
+memoizer(~f = g, 12);
+```
+
+Console output: 
+
+```
+6
+unmemoized: 7.225ms
+6
+memoized: 8.447ms
+6
+memoized: 0.500ms
+4
+memoized: 4.173ms
+4
+memoized: 0.064ms
+```
+
+<b> This seems to work as expected, in this case supplying func g with a seed means it is pure, we can guarantee that provided we pass in the same int we will always get the same int out.
+
+
+Which of these C++ functions are pure? Try to memoize them and observe what happens when you call them multiple times: memoized and not.
+(a) The factorial function from the example in the text.
+(b) 
+```C 
+std::getchar()
+```
+(c) 
+```C
+bool f() {
+std::cout << "Hello!" << std::endl;
+return true;
+}
+```
+(d) 
+```C 
+int f(int x) {
+static int y = 0;
+y += x;
+return y;
+}
+```
+
+This is kinda annoying as I'm not doing this is C++ 🤔.
+
+<b> A The factorial example referred to is this:
+
+```C
+int fact(int n) {
+  int i;
+  int result = 1;
+    for (i = 2; i <= n; ++i)
+      result *= i;
+    return result;
+}
+```
+
+The above function seems to be pure, we can guarantee that as long as the same n is put in we'll always get the same result.
+
+```Reason
+let blah = Hashtbl.create(1);
+let rec fact = (n: int) =>
+  if (n >= 1) {
+     (fact(n - 1) *n);
+  } else {
+    1;
+  };
+
+let memoizedfact = (n: int) =>
+  Hashtbl.mem(blah, n) ?
+    Hashtbl.find(blah, n) :
+    {
+      let x = fact(n);
+      Hashtbl.add(blah, n, x);
+      x;
+    };
+```
+
+console output: 
+
+```
+120
+unmemoized: 2.833ms
+120
+unmemoized: 0.158ms
+120
+memoized: 0.578ms
+120
+memoized: 0.369ms
+```
+
+(fact(5) 2 times for memoized and nonMemoized)
+
+The above implemented in Reason results in some performance weirdness in the memoized version. I assume this is due to V8 being super useful™ and finding performance enhancements for the non-memoized version.
+
+<b> B 
+
+Not sure about 
+
+```C
+std::getchar()
+```
+
+I *think* it is pure having read a number of C articles but have no clue.
+
+<b> C
+
+```C
+bool f() {
+std::cout << "Hello!" << std::endl;
+return true;
+}
+```
+
+```reason
+let bool = () => {
+  Js.log("Hello!");
+  true;
+};
+
+
+```
+
+The above in an impure function (side-effects of printing "Hello!").
+
+However as the logging doesn't effect the execution of the function, we can guarantee it will return true. Memoizing this would be simple enough but results in a less efficient execution of the code.
+
+<b> D
+  
+```C 
+int f(int x) {
+static int y = 0;
+y += x;
+return y;
+}
+```
+
+```reason
+let blah = Hashtbl.create(1);
+
+let memoizer = (~f: int => int, n: int) =>
+Hashtbl.mem(blah, n) ?
+Hashtbl.find(blah, n) :
+{
+    let x = f(n);
+    Hashtbl.add(blah, n, x);
+    x;
+};
+
+let f = (x: int) => {
+  let y = 0;
+  let y = y + x;
+  y;
+};
+```
+
+Console output:
+
+```
+3
+f: 2.456ms
+3
+f: 0.130ms
+3
+memoized f: 0.587ms
+3
+memoized f: 0.422ms
+```
+
+Again weirdness from V8, I feel at this point I might have to look at my base memoization function 😭.
