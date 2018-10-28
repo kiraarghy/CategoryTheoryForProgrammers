@@ -51,3 +51,66 @@ See above...
 6. <i>'When is a directed graph a category?'</i>
 
 I don't know a huge amount of directed graphs, but from quick research, directed graphs have fewer rules when connecting up dots, catergory theory considers that the functors connecting up the dots have to follow very strict rules e.g. ```string -> string``` is fine but ```string -> int``` without a corresponding morphism would not be okay, in a directed graph the above examples could be fine. If a directed graph however followed the above rules as per catergory theory, it would be a catergory.
+
+## Chapter 2 challenges
+
+1. Define a higher-order function (or a function object) memoize in your favorite language. This function takes a pure function f as an argument and returns a function that behaves almost exactly like f, except that it only calls the original function once for every argument, stores the result internally, and subsequently returns this stored result every time it’s called with the same argument. You can tell the memoized function from the original by watching its performance. For instance, try to memoize a function that takes a long time to evaluate. You’ll have to wait for the result the first time you call it, but on subsequent calls, with the same argument, you should get the result immediately.
+
+Note this works for a pure function g. I'm gonna see if I can do a function that is less prescriptive in the type of arguments it may receive.
+
+```reason let blah = Hashtbl.create(1);
+
+let memoizer = (~f: int => int, n: int) =>
+  Hashtbl.mem(blah, n) ?
+    Hashtbl.find(blah, n) :
+    {
+      let x = f(n);
+      Hashtbl.add(blah, n, x);
+      x;
+    };
+
+let rec g = (n: int) =>
+  switch (n) {
+  | 100000000000000 => 100000000000000
+  | _ =>
+    let x = g(n + 1);
+    x;
+  };
+
+```
+
+console output:
+
+```
+g unmemoized: 143.489ms
+g memoized establish: 149.157ms
+g unmemoized: 0.402ms
+```
+
+2. Try to memoize a function from your standard library that you
+normally use to produce random numbers. Does it work?
+
+```reason
+let blah = Hashtbl.create(1);
+
+let memoizer = (~f: int => int, n: int) =>
+  Hashtbl.mem(blah, n) ?
+    Hashtbl.find(blah, n) :
+    {
+      let x = f(n);
+      Hashtbl.add(blah, n, x);
+      x;
+    };
+Random.init(6)
+
+memoizer(~f = Random.int, 3);
+```
+
+It seems to work, console output: 
+
+```
+value: 1
+notmemoizedyet: 3.037ms
+value: 1
+memoized: 0.412ms
+```
