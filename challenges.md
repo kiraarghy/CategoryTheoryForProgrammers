@@ -312,6 +312,15 @@ Again weirdness from V8, I feel at this point I might have to look at my base me
 
 5. How many different functions are there from Bool to Bool? Can you implement them all?
 
-I imagine a lot, you could implement infinite implementations but it shouldn't matter as they will always return a bool? 
+```reason
+let id = (x: bool) => x;
+
+let returnTrue = (x: bool) => true;
+
+let returnFalse = (x: bool) => false;
+
+let invertBool = (x: bool) => not(x);
+
+```
 
 6. 
